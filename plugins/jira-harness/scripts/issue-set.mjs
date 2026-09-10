@@ -73,7 +73,7 @@ const args = parseArgs(process.argv.slice(2));
 const cwd = resolve(args.cwd);
 
 const proj = locateProject(cwd);
-if (!proj || !proj.configPath) fail(2, 'harness.json 이 없다 — /jira-harness:setup 으로 설치할 것');
+if (!proj || !proj.configPath) fail(2, 'harness.json 이 없다 — jira-harness:setup 으로 설치할 것');
 const cfg = loadConfig(proj.configPath);
 const root = proj.toplevel;
 const configRoot = proj.configRoot;

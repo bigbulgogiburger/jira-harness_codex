@@ -76,7 +76,7 @@ export function decide(op, cwd, opts = {}) {
     // issue-start --adopt 로 채택한 브랜치: 패턴 밖이어도 상태 JSON 이 있으면 그 기록을 따른다(키는 상태 JSON 이 안다)
     parsed = { branch, keys: [], slug: branchSlug(branch) };
   }
-  if (!parsed) return deny('BRANCH_PATTERN', `브랜치 "${branch ?? '(detached)'}" 가 branch_pattern 밖이다 — 이슈 브랜치에서 작업하거나 /jira-harness:issue <KEY> --adopt 로 채택할 것`);
+  if (!parsed) return deny('BRANCH_PATTERN', `브랜치 "${branch ?? '(detached)'}" 가 branch_pattern 밖이다 — 이슈 브랜치에서 작업하거나 jira-harness:issue <KEY> --adopt 로 채택할 것`);
 
   const sPath = statePath(cfg, proj.configRoot, parsed.slug);
   let state;
@@ -85,7 +85,7 @@ export function decide(op, cwd, opts = {}) {
     // complete 가 상태를 아카이브한 브랜치 — 사다리(게이트·리뷰)가 닫혔다. closure 문서는 위 docs-only 로 이미 통과했으니 여기 오면 코드 변경이다.
     const archived = latestArchivedState(cfg, proj.configRoot, parsed.slug);
     if (archived) return deny('COMPLETED', `이슈가 complete 로 아카이브됐다(${archived}) — 코드를 더 바꾸려면 issue-start.mjs ${parsed.keys.join(',') || '<KEY>'} --adopt 로 다시 시작할 것(closure 문서만이면 docs-only 로 통과한다)`);
-    return deny('NO_STATE', `이슈가 시작되지 않았다(${parsed.keys.join(',')}) — /jira-harness:issue ${parsed.keys[0]} 로 시작할 것`);
+    return deny('NO_STATE', `이슈가 시작되지 않았다(${parsed.keys.join(',')}) — jira-harness:issue ${parsed.keys[0]} 로 시작할 것`);
   }
 
   if (op === 'commit') {

@@ -62,7 +62,7 @@ async function waitKey(msg = '\n[아무 키나 누르면 닫힙니다]') {
 function harnessOrExplain(cwd) {
   const proj = locateProject(cwd);
   if (!proj) { console.log(`[jira-harness] git 저장소가 아닙니다 — ${cwd}`); return null; }
-  if (!proj.configPath) { console.log(`[jira-harness] 이 저장소에는 .codex/harness.json 이 없습니다 — Claude Code 에서 /jira-harness:setup 을 먼저 실행하세요 (${proj.toplevel})`); return null; }
+  if (!proj.configPath) { console.log(`[jira-harness] 이 저장소에는 .codex/harness.json 이 없습니다 — Claude Code 에서 jira-harness:setup 을 먼저 실행하세요 (${proj.toplevel})`); return null; }
   return proj;
 }
 

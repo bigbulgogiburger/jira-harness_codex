@@ -15,8 +15,8 @@ claude plugin install jira-harness@bigbulgogiburger
 프로젝트에 붙이기:
 
 ```
-/jira-harness:setup            # 스택 감지 → harness.json → 전제 점검 → 위반 주입으로 훅 실효 확인
-/jira-harness:issue ABC-123    # 이슈 한 건(또는 ABC-123,ABC-124) 진행
+jira-harness:setup            # 스택 감지 → harness.json → 전제 점검 → 위반 주입으로 훅 실효 확인
+jira-harness:issue ABC-123    # 이슈 한 건(또는 ABC-123,ABC-124) 진행
 ```
 
 업데이트는 `claude plugin update jira-harness` 후 Claude Code 재시작.
@@ -80,7 +80,7 @@ claude plugin validate . --strict
 
 ## 이전 버전
 
-v2 는 user-scope 스킬 17종 묶음([`claude_jira_harness`](https://github.com/bigbulgogiburger/claude_jira_harness))이었습니다. v3 는 그것을 플러그인 하나로 재구축한 것입니다 — 스킬 체인 대신 라우터 1개 + 저장 워크플로, 모델이 쓰던 markdown 판정 대신 스크립트가 쓰는 상태 JSON, 훅은 `PASS` 문자열 grep 대신 git 트리 id 대조. 기존 프로젝트는 `/jira-harness:setup --upgrade` 로 v2 잔재(훅 3종·runtime 파일·`HARNESS_MODE`)를 이관합니다.
+v2 는 user-scope 스킬 17종 묶음([`claude_jira_harness`](https://github.com/bigbulgogiburger/claude_jira_harness))이었습니다. v3 는 그것을 플러그인 하나로 재구축한 것입니다 — 스킬 체인 대신 라우터 1개 + 저장 워크플로, 모델이 쓰던 markdown 판정 대신 스크립트가 쓰는 상태 JSON, 훅은 `PASS` 문자열 grep 대신 git 트리 id 대조. 기존 프로젝트는 `jira-harness:setup --upgrade` 로 v2 잔재(훅 3종·runtime 파일·`HARNESS_MODE`)를 이관합니다.
 
 ## 라이선스
 

@@ -49,7 +49,7 @@ function reject(code, reason, extra = {}, exitCode = 1) {
 
 // ---------- 프로젝트·설정 ----------
 const proj = locateProject(cwd);
-if (!proj || !proj.configPath) reject('NO_HARNESS', '하네스 미설치 프로젝트 — /jira-harness:setup 으로 설치할 것', {}, 2);
+if (!proj || !proj.configPath) reject('NO_HARNESS', '하네스 미설치 프로젝트 — jira-harness:setup 으로 설치할 것', {}, 2);
 let cfg;
 try { cfg = loadConfig(proj.configPath); } catch (e) { reject('BAD_CONFIG', `harness.json 이 유효하지 않다: ${e.message}`, {}, 2); }
 const root = proj.toplevel;
@@ -63,12 +63,12 @@ if (!parsed && branch && existsSync(statePath(cfg, configRoot, branchSlug(branch
   parsed = { branch, keys: [], slug: branchSlug(branch) };
 }
 if (!parsed) {
-  reject('NO_STATE', `브랜치 "${branch ?? '(detached)'}" 는 branch_pattern 밖이고 상태 JSON 도 없다 — /jira-harness:issue <KEY> --adopt 로 채택할 것`, { branch });
+  reject('NO_STATE', `브랜치 "${branch ?? '(detached)'}" 는 branch_pattern 밖이고 상태 JSON 도 없다 — jira-harness:issue <KEY> --adopt 로 채택할 것`, { branch });
 }
 const sPath = statePath(cfg, configRoot, parsed.slug);
 let state;
 try { state = readState(sPath); } catch (e) { reject('BAD_STATE', `상태 JSON 이 유효하지 않다(${fwd(relative(configRoot, sPath))}): ${e.message}`, { branch }); }
-if (!state) reject('NO_STATE', `이슈가 시작되지 않았다 — /jira-harness:issue <KEY> 로 시작할 것`, { branch });
+if (!state) reject('NO_STATE', `이슈가 시작되지 않았다 — jira-harness:issue <KEY> 로 시작할 것`, { branch });
 const keys = state.keys?.length ? state.keys : parsed.keys;
 const base = { branch, keys };
 

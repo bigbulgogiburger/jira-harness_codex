@@ -55,7 +55,7 @@ function runCmd(shell, cmd, { cwd, env, timeoutS }) {
 
 // ---------- 본체 ----------
 const proj = locateProject(cwd);
-if (!proj || !proj.configPath) fail(2, 'harness.json 이 없다 — /jira-harness:setup 으로 설치할 것');
+if (!proj || !proj.configPath) fail(2, 'harness.json 이 없다 — jira-harness:setup 으로 설치할 것');
 let cfg; try { cfg = loadConfig(proj.configPath); } catch (e) { fail(2, `harness.json 이 유효하지 않다(${proj.configPath}): ${e.message}`); }
 const root = proj.toplevel;
 const configRoot = proj.configRoot;
@@ -64,7 +64,7 @@ const parsed = parseBranch(branch, cfg);
 if (!parsed && !flag('--dry-run')) fail(2, `브랜치 "${branch ?? '(detached)'}" 가 branch_pattern 밖이다`);
 const sPath = statePath(cfg, configRoot, parsed ? parsed.slug : 'dry-run'); // dry-run 은 상태·브랜치 없이도 계획만 보여준다(setup check 가 이슈 전에 부른다)
 const state = readState(sPath);
-if (!state && !flag('--dry-run')) fail(2, `상태 JSON 이 없다(${relative(configRoot, sPath)}) — /jira-harness:issue ${parsed.keys[0]} 로 시작할 것`);
+if (!state && !flag('--dry-run')) fail(2, `상태 JSON 이 없다(${relative(configRoot, sPath)}) — jira-harness:issue ${parsed.keys[0]} 로 시작할 것`);
 
 if (flag('--stage-all')) git(['add', '-A'], { cwd: root });
 

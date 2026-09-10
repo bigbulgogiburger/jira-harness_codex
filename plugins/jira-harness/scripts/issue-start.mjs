@@ -89,7 +89,7 @@ if (statusMode) {
   if (!proj.configPath) {
     const root = proj.toplevel;
     const branch = currentBranch(root);
-    emit({ code: 'NO_HARNESS', branch, keys: [], slug: null, stage: null, state_path: null, gate: null, review: null, dirty: dirtyCounts(root, DEFAULTS.fingerprint_exclude), next: '/jira-harness:setup 으로 harness.json 을 먼저 만들 것' });
+    emit({ code: 'NO_HARNESS', branch, keys: [], slug: null, stage: null, state_path: null, gate: null, review: null, dirty: dirtyCounts(root, DEFAULTS.fingerprint_exclude), next: 'jira-harness:setup 으로 harness.json 을 먼저 만들 것' });
   }
   const cfg = loadConfig(proj.configPath);
   const root = proj.toplevel;
@@ -126,7 +126,7 @@ if (statusMode) {
 if (!keysArg) fail(2, '사용법: issue-start.mjs --status | <KEY[,KEY…]> [--adopt] [--cwd <dir>] [--json]');
 
 const proj = locateProject(cwd);
-if (!proj || !proj.configPath) fail(2, 'harness.json 이 없다 — /jira-harness:setup 으로 설치할 것');
+if (!proj || !proj.configPath) fail(2, 'harness.json 이 없다 — jira-harness:setup 으로 설치할 것');
 const cfg = loadConfig(proj.configPath);
 const root = proj.toplevel;
 const configRoot = proj.configRoot;
