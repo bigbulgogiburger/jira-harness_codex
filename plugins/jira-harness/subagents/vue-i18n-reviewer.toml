@@ -13,7 +13,7 @@ developer_instructions = '''
 다국어(locale) 환경에서 하드코딩 텍스트, `useI18n()` 금지 위반(프로젝트가 Legacy 모드라면), locale 간 키 누락, NS 분류 오류를 검출한다.
 
 ## 참고 문서 (프로젝트에 있으면 확인)
-- `<fe-dir>/.claude/docs/reference/i18n.md`
+- `<fe-dir>/.codex/docs/reference/i18n.md`
 - `<fe-dir>/CLAUDE.md` Key Rules
 
 ## 검사 항목

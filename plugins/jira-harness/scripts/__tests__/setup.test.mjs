@@ -118,7 +118,7 @@ test('detect: 패키지 매니저·기존 harness.json·브랜치에서 접두�
 
 test('write: 최초 쓰기 · settings 병합(다른 키 보존) · .gitignore 보강 · 멱등', () => {
   const dir = makeRepo();
-  writeJson(join(dir, '.codex/config.toml'), { permissions: { allow: ['Bash(ls:*)'] }, enabledPlugins: { 'other@mkt': true } });
+  writeJson(join(dir, '.codex/settings.json'), { permissions: { allow: ['Bash(ls:*)'] }, enabledPlugins: { 'other@mkt': true } });
   writeFileSync(join(dir, '.gitignore'), 'node_modules/\n.codex/runtime/\n');
   const cfgFile = writeConfigFile(dir, validConfig());
 
@@ -129,14 +129,14 @@ test('write: 최초 쓰기 · settings 병합(다른 키 보존) · .gitignore �
   const written = JSON.parse(readFileSync(join(dir, '.codex/harness.json'), 'utf8'));
   assert.equal(written.issue_prefix, 'ABC');
 
-  const settings = JSON.parse(readFileSync(join(dir, '.codex/config.toml'), 'utf8'));
+  const settings = JSON.parse(readFileSync(join(dir, '.codex/settings.json'), 'utf8'));
   assert.deepEqual(settings.permissions.allow, ['Bash(ls:*)'], '다른 키 보존');
   assert.equal(settings.enabledPlugins['other@mkt'], true, '다른 플러그인 항목 보존');
   assert.equal(settings.enabledPlugins['jira-harness@jira-harness'], true);
   assert.deepEqual(settings.extraKnownMarketplaces['jira-harness'], { source: { source: 'github', repo: 'bigbulgogiburger/jira-harness' } });
 
   const ignore = readFileSync(join(dir, '.gitignore'), 'utf8');
-  assert.ok(ignore.includes('.claude/harness.env.local'), '없던 줄은 추가');
+  assert.ok(ignore.includes('.codex/harness.env.local'), '없던 줄은 추가');
   assert.equal(ignore.split('\n').filter(l => l.trim() === '.codex/runtime/').length, 1, '있던 줄은 중복 추가하지 않는다');
 
   const again = setupJson(dir, 'write', '--config', cfgFile);
@@ -151,7 +151,7 @@ test('write: --marketplace/--plugin/--repo 지정', () => {
   const cfgFile = writeConfigFile(dir, validConfig());
   const r = setupJson(dir, 'write', '--config', cfgFile, '--marketplace', 'team-mp', '--plugin', 'jira-harness', '--repo', 'acme/harness');
   assert.equal(r.status, 0, r.stderr);
-  const settings = JSON.parse(readFileSync(join(dir, '.codex/config.toml'), 'utf8'));
+  const settings = JSON.parse(readFileSync(join(dir, '.codex/settings.json'), 'utf8'));
   assert.deepEqual(settings.extraKnownMarketplaces['team-mp'], { source: { source: 'github', repo: 'acme/harness' } });
   assert.equal(settings.enabledPlugins['jira-harness@team-mp'], true);
 });
@@ -185,7 +185,7 @@ test('write 거부: 스키마 위반(미결정 접두사) · 절대 경로 · �
   assert.equal(r1.value.config.status, 'rejected');
   assert.ok(r1.value.errors.length > 0, JSON.stringify(r1.value));
   assert.equal(existsSync(join(dir, '.codex/harness.json')), false, '거부되면 파일을 만들지 않는다');
-  assert.equal(existsSync(join(dir, '.codex/config.toml')), false, '거부되면 settings 도 건드리지 않는다');
+  assert.equal(existsSync(join(dir, '.codex/settings.json')), false, '거부되면 settings 도 건드리지 않는다');
 
   const absCfg = validConfig();
   absCfg.stacks.backend.compile = 'C:/tools/gradle/bin/gradle compileJava';
@@ -252,18 +252,18 @@ test('check 거부: harness.json 이 없으면 게이트 항목까지 fail-close
 // ---------------------------------------------------------------- upgrade
 
 function seedV2(dir) {
-  writeJson(join(dir, '.claude/settings.local.json'), {
+  writeJson(join(dir, '.codex/settings.local.json'), {
     env: { HARNESS_MODE: 'auto', OTHER_KEY: 'keepme-not-a-secret' },
     permissions: { allow: ['Bash(git status:*)'] },
     hooks: {
       PreToolUse: [
-        { matcher: 'Bash', hooks: [{ type: 'command', command: 'python .claude/hooks/compile-check.py' }, { type: 'command', command: 'echo keep-me' }] },
+        { matcher: 'Bash', hooks: [{ type: 'command', command: 'python .codex/hooks/compile-check.py' }, { type: 'command', command: 'echo keep-me' }] },
       ],
       UserPromptSubmit: [
-        { matcher: '*', hooks: [{ type: 'command', command: 'python .claude/hooks/harness-context-inject.py' }] },
+        { matcher: '*', hooks: [{ type: 'command', command: 'python .codex/hooks/harness-context-inject.py' }] },
       ],
       Stop: [
-        { matcher: '*', hooks: [{ type: 'command', command: 'bash .claude/hooks/review-gate.sh' }] },
+        { matcher: '*', hooks: [{ type: 'command', command: 'bash .codex/hooks/review-gate.sh' }] },
       ],
     },
   });
@@ -274,31 +274,31 @@ function seedV2(dir) {
   writeFileSync(join(dir, '.codex/runtime/aggregate-verdict.md'), '# verdict\n');
   writeFileSync(join(dir, '.codex/runtime/changed-files.txt'), 'a.java\n');
   writeFileSync(join(dir, '.codex/runtime/keep-me.json'), '{}\n');
-  mkdirSync(join(dir, '.claude/scripts'), { recursive: true });
-  writeFileSync(join(dir, '.claude/scripts/phase-execute.py'), '# v2 runner\n');
-  writeFileSync(join(dir, '.claude/scripts/helper.py'), '# not a runner\n');
-  mkdirSync(join(dir, '.claude/hooks'), { recursive: true });
-  writeFileSync(join(dir, '.claude/hooks/compile-check.py'), '# v2 hook\n');
-  writeFileSync(join(dir, '.claude/hooks/other-hook.py'), '# keep\n');
+  mkdirSync(join(dir, '.codex/scripts'), { recursive: true });
+  writeFileSync(join(dir, '.codex/scripts/phase-execute.py'), '# v2 runner\n');
+  writeFileSync(join(dir, '.codex/scripts/helper.py'), '# not a runner\n');
+  mkdirSync(join(dir, '.codex/hooks'), { recursive: true });
+  writeFileSync(join(dir, '.codex/hooks/compile-check.py'), '# v2 hook\n');
+  writeFileSync(join(dir, '.codex/hooks/other-hook.py'), '# keep\n');
 }
 
 test('upgrade dry-run: 잔재를 찾되 파일·설정은 하나도 바꾸지 않는다', () => {
   const dir = makeRepo();
   writeJson(join(dir, '.codex/harness.json'), validConfig());
   seedV2(dir);
-  const settingsBefore = readFileSync(join(dir, '.claude/settings.local.json'), 'utf8');
+  const settingsBefore = readFileSync(join(dir, '.codex/settings.local.json'), 'utf8');
 
   const r = setupJson(dir, 'upgrade');
   assert.equal(r.status, 0, r.stderr);
   assert.equal(r.value.apply, false);
-  for (const f of ['.codex/runtime/sprint-contract-ABC-1.md', '.codex/runtime/workflow-state-ABC-1.json', '.codex/runtime/aggregate-verdict.md', '.codex/runtime/changed-files.txt', '.codex/runtime/phases', '.claude/scripts/phase-execute.py', '.claude/hooks/compile-check.py']) {
+  for (const f of ['.codex/runtime/sprint-contract-ABC-1.md', '.codex/runtime/workflow-state-ABC-1.json', '.codex/runtime/aggregate-verdict.md', '.codex/runtime/changed-files.txt', '.codex/runtime/phases', '.codex/scripts/phase-execute.py', '.codex/hooks/compile-check.py']) {
     assert.ok(r.value.found.includes(f), `${f} 미검출: ${r.value.found.join(', ')}`);
     assert.ok(existsSync(join(dir, f)), `${f} 는 dry-run 에서 그대로 있어야 한다`);
   }
   assert.ok(!r.value.found.includes('.codex/runtime/keep-me.json'), 'v2 목록 밖 파일은 건드리지 않는다');
-  assert.ok(!r.value.found.includes('.claude/scripts/helper.py'));
+  assert.ok(!r.value.found.includes('.codex/scripts/helper.py'));
   assert.equal(r.value.moved.every(m => m.applied === false), true);
-  assert.equal(readFileSync(join(dir, '.claude/settings.local.json'), 'utf8'), settingsBefore, 'dry-run 은 설정 파일을 쓰지 않는다');
+  assert.equal(readFileSync(join(dir, '.codex/settings.local.json'), 'utf8'), settingsBefore, 'dry-run 은 설정 파일을 쓰지 않는다');
   assert.equal(existsSync(join(dir, '.codex/runtime/archive/v2')), false);
 });
 
@@ -314,17 +314,17 @@ test('upgrade --apply: archive 로 이동(삭제 아님) · v2 훅 3종 제거 �
   for (const [from, to] of [
     ['.codex/runtime/sprint-contract-ABC-1.md', '.codex/runtime/archive/v2/runtime/sprint-contract-ABC-1.md'],
     ['.codex/runtime/phases', '.codex/runtime/archive/v2/runtime/phases'],
-    ['.claude/scripts/phase-execute.py', '.codex/runtime/archive/v2/scripts/phase-execute.py'],
-    ['.claude/hooks/compile-check.py', '.codex/runtime/archive/v2/hooks/compile-check.py'],
+    ['.codex/scripts/phase-execute.py', '.codex/runtime/archive/v2/scripts/phase-execute.py'],
+    ['.codex/hooks/compile-check.py', '.codex/runtime/archive/v2/hooks/compile-check.py'],
   ]) {
     assert.equal(existsSync(join(dir, from)), false, `${from} 는 원래 자리에서 사라져야 한다`);
     assert.ok(existsSync(join(dir, to)), `${to} 로 이동해야 한다(삭제 아님)`);
   }
   assert.ok(statSync(join(dir, '.codex/runtime/archive/v2/runtime/phases/ABC-1/index.json')).isFile(), '디렉터리는 내용째 이동');
   assert.ok(existsSync(join(dir, '.codex/runtime/keep-me.json')), '목록 밖 파일은 그대로');
-  assert.ok(existsSync(join(dir, '.claude/hooks/other-hook.py')));
+  assert.ok(existsSync(join(dir, '.codex/hooks/other-hook.py')));
 
-  const settings = JSON.parse(readFileSync(join(dir, '.claude/settings.local.json'), 'utf8'));
+  const settings = JSON.parse(readFileSync(join(dir, '.codex/settings.local.json'), 'utf8'));
   assert.equal(settings.env.HARNESS_MODE, undefined, 'HARNESS_MODE 제거');
   assert.equal(settings.env.OTHER_KEY, 'keepme-not-a-secret', '다른 env 키는 값까지 보존');
   assert.deepEqual(settings.permissions.allow, ['Bash(git status:*)']);

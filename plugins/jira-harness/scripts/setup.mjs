@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // setup.mjs — setup 스킬의 결정론 부분. 인터뷰(모르는 값 묻기)와 보고 문장은 스킬이, 측정·쓰기는 여기가 한다.
 //   detect  : 스택 감지 → harness.json 제안 + 모르는 값 목록
-//   write   : harness.json 멱등 쓰기(스키마 검증 · 절대 경로/자격증명 거부) + .codex/config.toml 병합 + .gitignore 보강
+//   write   : harness.json 멱등 쓰기(스키마 검증 · 절대 경로/자격증명 거부) + Codex 등록 argv 반환 + .gitignore 보강
 //   check   : 전제 체크리스트(node·git·bash·codex·harness.json·게이트 dry-run) — 미충족 항목에 fail-closed 단계 표시
 //   upgrade : v2 잔재 감지·이관(기본 dry-run, --apply 로 실행 — 삭제가 아니라 archive 로 이동)
 //   inject  : 위반 주입 — 프로젝트를 임시 clone 해 게이트가 **실제로 막는지** 실측(존재 ≠ 실효)
@@ -276,27 +276,15 @@ function validateConfig(cfg) {
 }
 
 function mergeSettings(root, { marketplace, plugin, repo }) {
-  const file = join(root, '.codex/config.toml');
-  const cur = readJson(file);
-  if (!cur.ok && !cur.missing) return { path: '.codex/config.toml', changed: false, added: [], error: `settings.json 을 읽을 수 없다: ${cur.error}` };
-  const settings = cur.value ?? {};
-  const added = [];
-  const before = JSON.stringify(settings);
-  settings.extraKnownMarketplaces = settings.extraKnownMarketplaces ?? {};
-  const wantMarket = { source: { source: 'github', repo } };
-  if (JSON.stringify(settings.extraKnownMarketplaces[marketplace]) !== JSON.stringify(wantMarket)) {
-    settings.extraKnownMarketplaces[marketplace] = wantMarket;
-    added.push(`extraKnownMarketplaces.${marketplace}`);
-  }
-  settings.enabledPlugins = settings.enabledPlugins ?? {};
-  const pluginKey = `${plugin}@${marketplace}`;
-  if (settings.enabledPlugins[pluginKey] !== true) {
-    settings.enabledPlugins[pluginKey] = true;
-    added.push(`enabledPlugins.${pluginKey}`);
-  }
-  const changed = JSON.stringify(settings) !== before;
-  if (changed) writeJson(file, settings);
-  return { path: '.codex/config.toml', changed, added, error: null };
+  // Codex owns TOML and plugin registration. Return argv, not shell-interpolated commands.
+  return {
+    path: '.codex/config.toml', changed: false, added: [], error: null,
+    status: 'registration-required',
+    commands: [
+      ['codex', 'plugin', 'marketplace', 'add', repo],
+      ['codex', 'plugin', 'add', `${plugin}@${marketplace}`],
+    ],
+  };
 }
 
 const GITIGNORE_LINES = ['.claude/harness.env.local', '.codex/runtime/'];
@@ -361,15 +349,15 @@ function cmdWrite() {
   if (status !== 'unchanged') writeJson(file, cfg);
 
   const settings = mergeSettings(cwd, {
-    marketplace: opt('--marketplace', 'jira-harness'),
+    marketplace: opt('--marketplace', 'jira-harness-codex'),
     plugin: opt('--plugin', 'jira-harness'),
-    repo: opt('--repo', 'bigbulgogiburger/jira-harness'),
+    repo: opt('--repo', 'bigbulgogiburger/jira-harness_codex'),
   });
   const gitignore = ensureGitignore(cwd);
   const payload = { config: { path: norm(file), status }, diff, settings, gitignore };
   emit(payload, settings.error ? 1 : 0, [
     `[setup] harness.json ${status}`,
-    `[setup] settings.json ${settings.error ?? (settings.changed ? `병합: ${settings.added.join(', ')}` : '변경 없음')}`,
+    `[setup] Codex 등록 필요: ${JSON.stringify(settings.commands)}`,
     `[setup] .gitignore ${gitignore.added.length ? `추가: ${gitignore.added.join(', ')}` : '변경 없음'}`,
   ]);
 }
@@ -400,7 +388,7 @@ function makeProbeClone(root) {
   // harness.json 은 아직 커밋 전일 수 있다 — 원본의 것을 그대로 복사해 같은 설정으로 판정한다.
   const srcCfg = join(root, CONFIG_REL);
   if (existsSync(srcCfg)) {
-    mkdirSync(join(dst, '.claude'), { recursive: true });
+    mkdirSync(dirname(join(dst, CONFIG_REL)), { recursive: true });
     copyFileSync(srcCfg, join(dst, CONFIG_REL));
   }
   return { ok: true, dir: dst };
@@ -695,7 +683,7 @@ switch (cmd) {
   case 'detect': cmdDetect(); break;
   case 'write': cmdWrite(); break;
   case 'check': cmdCheck(); break;
-  case 'upgrade': cmdUpgrade(); break;
+  case 'upgrade': emit({ code: 'UNSUPPORTED_CODEX_UPGRADE', reason: 'Claude v2 자동 이관은 Codex TOML에 적용할 수 없다. 기존 설정을 수동 검토한다.' }, 2); break;
   case 'inject': cmdInject(); break;
   default:
     die('사용법: setup.mjs detect | write --config <파일|-> [--force] [--marketplace <n>] [--plugin <n>] [--repo <owner/repo>] | check | upgrade [--apply] | inject   [--cwd <dir>] [--json]');

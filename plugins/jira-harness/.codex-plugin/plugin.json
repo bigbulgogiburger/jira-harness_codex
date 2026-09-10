@@ -1,7 +1,7 @@
 {
   "name": "jira-harness",
   "version": "3.4.0",
-  "description": "Jira-driven development harness for Claude Code: issue router skill, saved workflows (plan/implement/verify), commit/push gate hook, deterministic bookkeeping scripts (state JSON, wiki index, memory).",
+  "description": "Jira-driven development harness for Codex: issue skills, review lanes, commit/push gate hooks, and bookkeeping scripts.",
   "author": {
     "name": "bigbulgogiburger"
   },
@@ -36,8 +36,8 @@
   },
   "interface": {
     "displayName": "jira-harness",
-    "shortDescription": "Jira-driven development harness for Claude Code",
-    "longDescription": "Jira-driven development harness for Claude Code: issue router skill, saved workflows (plan/implement/verify), commit/push gate hook, deterministic bookkeeping scripts (state JSON, wiki index, memory).",
+    "shortDescription": "Jira-driven development harness for Codex",
+    "longDescription": "Jira-driven development harness for Codex: issue skills, review lanes, commit/push gate hooks, and bookkeeping scripts.",
     "developerName": "bigbulgogiburger",
     "category": "Developer Tools",
     "capabilities": [

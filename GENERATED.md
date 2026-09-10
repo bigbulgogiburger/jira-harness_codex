@@ -21,4 +21,4 @@ codex plugin marketplace add bigbulgogiburger/jira-harness_codex
 codex plugin add jira-harness@jira-harness-codex
 ```
 
-생성 시각: 2026-09-10T06:44:50.899Z
+생성 시각: 2026-09-10T06:57:39.679Z

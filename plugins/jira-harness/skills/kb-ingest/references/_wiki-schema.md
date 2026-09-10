@@ -136,7 +136,7 @@ ISSUE_PREFIX 는 첫 호출 시 프로젝트의 Jira 이슈 키 prefix 로부터
 
 ## 3. dev-guide YAML frontmatter 표준
 
-신규 dev-guide 는 다음 frontmatter 권장 (plan 단계 — `/jira-harness:issue` 가 자동 삽입):
+신규 dev-guide 는 다음 frontmatter 권장 (plan 단계 — `jira-harness 플러그인의 issue 스킬` 가 자동 삽입):
 
 ```yaml
 ---
@@ -226,7 +226,7 @@ KEY 없는 kb 소스는 KEY 자리에 소스 경로 slug (phase 자리에 `kb`).
 ```markdown
 # <Project> — 문서 인덱스 (LLM-maintained)
 
-> 자동 갱신: `/jira-harness:issue` 의 wiki 단계 호출 시. 마지막 갱신: 2026-05-14 14:32 KST.
+> 자동 갱신: `jira-harness 플러그인의 issue 스킬` 의 wiki 단계 호출 시. 마지막 갱신: 2026-05-14 14:32 KST.
 > 카테고리/정책: `INDEX-SCHEMA.md`. lint 보고서: `wiki-lint` 호출.
 
 <!-- ingest-managed:begin file=INDEX.md -->
@@ -351,7 +351,7 @@ PR diff 가 항상 5 파일 이내 보장.
 | "이 회의록/클라 회신/세션 기록 ingest" (KEY 없는 소스) | → **kb-ingest 스킬** 영역 (issue 스킬의 wiki 단계가 받았으면 kb-ingest 로 안내) |
 | "전체 문서를 wiki 로 ingest" / "wiki 구조 만들어줘" / synthesis 설정 있는데 `wiki/` 부재 | bootstrap-wiki (§ 17) |
 
-`/jira-harness:issue` 라우터가 wiki 단계를 호출할 때는 forecast/closure 모드를 넘긴다 (예: wiki 단계(`scripts/wiki-row.mjs`)를 "ABC-247 forecast 모드"로 실행).
+`jira-harness 플러그인의 issue 스킬` 라우터가 wiki 단계를 호출할 때는 forecast/closure 모드를 넘긴다 (예: wiki 단계(`scripts/wiki-row.mjs`)를 "ABC-247 forecast 모드"로 실행).
 
 **유일한 명시 플래그**: `--subtasks` — `_subtasks-convention.md` 와 일관성. 자연어로는 부모/슬라이스 mechanical 처리 모호.
 

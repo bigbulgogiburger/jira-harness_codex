@@ -13,8 +13,8 @@ developer_instructions = '''
 CQRS 정책 (ReadService / WriteService / SnapshotService 분리) 위반을 검출한다. 단일 Service 클래스에서 read+write 혼재, 트랜잭션 경계 모호, Service 간 부적절한 호출을 분석.
 
 ## 참고 문서 (프로젝트에 있으면 확인)
-- `<be-dir>/.claude/docs/reference/architecture.md` (CQRS 분리 정책)
-- `<be-dir>/.claude/docs/reference/data-access.md`
+- `<be-dir>/.codex/docs/reference/architecture.md` (CQRS 분리 정책)
+- `<be-dir>/.codex/docs/reference/data-access.md`
 - `<be-dir>/CLAUDE.md` Architecture 섹션
 
 ## 분리 원칙

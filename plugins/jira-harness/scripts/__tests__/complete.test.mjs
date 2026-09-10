@@ -27,11 +27,11 @@ function makeRepo({ mode = 'auto', harness = true, origin = true } = {}) {
   g(dir, 'config', 'user.email', 'test@example.com');
   g(dir, 'config', 'user.name', 'test');
   g(dir, 'config', 'core.autocrlf', 'false');
-  for (const d of ['docs', 'backend', 'frontend', '.claude']) mkdirSync(join(dir, d), { recursive: true });
+  for (const d of ['docs', 'backend', 'frontend', '.codex']) mkdirSync(join(dir, d), { recursive: true });
   writeFileSync(join(dir, 'docs/README.md'), '# docs\n');
   writeFileSync(join(dir, 'backend/App.java'), 'class App {}\n');
   writeFileSync(join(dir, 'frontend/app.js'), 'export default 1\n');
-  writeFileSync(join(dir, '.gitignore'), '.claude/harness.env.local\n');
+  writeFileSync(join(dir, '.gitignore'), '.codex/harness.env.local\n');
   if (harness) {
     const cfg = JSON.parse(readFileSync(join(HERE, 'fixtures/harness.json'), 'utf8'));
     cfg.mode = mode;
@@ -180,7 +180,7 @@ test('(e) 실행 → origin 브랜치 · archive 파일 · 원래 상태 파일 
   assert.equal(j.pushed, true);
   assert.equal(g(bare, 'rev-parse', 'refs/heads/feat/ABC-1'), g(dir, 'rev-parse', 'HEAD'), 'origin 에 브랜치가 올라갔다');
   assert.ok(!existsSync(stateFile(dir)), '원래 상태 파일은 남지 않는다');
-  const archived = join(dir, '.claude', ...j.archived_to.split('/').slice(1));
+  const archived = join(dir, '.codex', ...j.archived_to.split('/').slice(1));
   assert.ok(existsSync(archived), `archive 파일 없음: ${j.archived_to}`);
   const arch = JSON.parse(readFileSync(archived, 'utf8'));
   assert.equal(arch.stage, 'archived');

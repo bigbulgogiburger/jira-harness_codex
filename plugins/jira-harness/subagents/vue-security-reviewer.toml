@@ -13,9 +13,9 @@ developer_instructions = '''
 Vue 변경 사항에서 XSS, 인증 토큰 노출, env var 유출, CORS/CSRF 위반, prod 빌드에 dev key 잔존을 검출한다.
 
 ## 참고 문서 (프로젝트에 있으면 확인)
-- `<fe-dir>/.claude/docs/reference/api-layer.md` (인증 모드)
-- `<fe-dir>/.claude/docs/reference/error-handling.md` (전역 로그 정책)
-- `<fe-dir>/.claude/docs/reference/build-config.md` (.env 분리)
+- `<fe-dir>/.codex/docs/reference/api-layer.md` (인증 모드)
+- `<fe-dir>/.codex/docs/reference/error-handling.md` (전역 로그 정책)
+- `<fe-dir>/.codex/docs/reference/build-config.md` (.env 분리)
 - `<fe-dir>/CLAUDE.md` Key Rules
 
 ## 검사 항목

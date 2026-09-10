@@ -13,7 +13,7 @@ developer_instructions = '''
 Vue 컴포넌트의 패턴 일관성 (인앱 모달 vs 별창 팝업 / CSS 클래스 네이밍 단일 진실 / AG Grid / PrimeVue) 위반을 검출한다. 프로젝트가 정한 모달/팝업 정책 위반, 폐기된 CSS 참조, BEM 규칙 위반, 컴포넌트 크기 초과 (400줄+) 식별.
 
 ## 참고 문서 (프로젝트에 있으면 확인)
-- `<fe-dir>/.claude/docs/reference/architecture.md` (CSS 단일 진실)
+- `<fe-dir>/.codex/docs/reference/architecture.md` (CSS 단일 진실)
 - `<fe-dir>/CLAUDE.md` Key Rules
 
 ## 검사 항목

@@ -38,4 +38,4 @@
 
 - 프로젝트 `CLAUDE.md` 의 `## Harness Engineering` 절 — v2 훅 개수·모델 티어링 서술을 위 표 기준으로 갱신
 - `harness-integration.md` 류 연동 문서 — v2 스크립트 경로가 남아 있으면 위 표의 v3 경로로 교체
-- 갱신 문구를 이 스킬이 대신 커밋하지 않는다 — 다음 `/jira-harness:issue` 호출에서 문서 변경이 게이트를 막지 않도록, `docs_only_paths` 커밋으로 별도 처리하는 편이 안전하다
+- 갱신 문구를 이 스킬이 대신 커밋하지 않는다 — 다음 `jira-harness 플러그인의 issue 스킬` 호출에서 문서 변경이 게이트를 막지 않도록, `docs_only_paths` 커밋으로 별도 처리하는 편이 안전하다

@@ -13,8 +13,8 @@ developer_instructions = '''
 Vuex 와 Pinia 가 공존하는 프로젝트에서 그 공존 정책 위반을 검출한다. 책임 중복, 영속화 누락, keep-alive dirty 패턴 미준수, 신규 store 의 라이브러리 선택 부적절을 식별.
 
 ## 참고 문서 (프로젝트에 있으면 확인)
-- `<fe-dir>/.claude/docs/reference/state-management.md`
-- `<fe-dir>/.claude/docs/reference/routing.md` (keep-alive)
+- `<fe-dir>/.codex/docs/reference/state-management.md`
+- `<fe-dir>/.codex/docs/reference/routing.md` (keep-alive)
 
 ## Decision Table 정책 (예시 — 프로젝트의 실제 표로 대체)
 

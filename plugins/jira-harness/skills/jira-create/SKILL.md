@@ -1,7 +1,10 @@
 ---
 name: jira-create
-description: "jira-create — 자연어 한 줄 또는 문서를 읽어 Jira 이슈를 생성합니다. 단일 이슈는 바로 등록하고, 문서 기반이면 에픽→이슈→하위이슈 계층으로 일괄 등록합니다. 'jira 이슈 만들어줘', '지라 이슈 등록해줘', '이슈 등록', '이슈 생성', '에픽 만들어줘', '스토리 추가', '백로그에 추가', '이 문서 보고 이슈 등록해줘', 'w1-w4.md 지라에 올려줘', '계획 문서를 지라로 옮겨줘', 'jira create', '/jira-create' 등의 요청에 반드시 이 스킬을 사용하세요. 워크플로우의 시작점으로, `/jira-harness:issue` 착수 이전에 사용합니다."
+description: "jira-create — 자연어 한 줄 또는 문서를 읽어 Jira 이슈를 생성합니다. 단일 이슈는 바로 등록하고, 문서 기반이면 에픽→이슈→하위이슈 계층으로 일괄 등록합니다. 'jira 이슈 만들어줘', '지라 이슈 등록해줘', '이슈 등록', '이슈 생성', '에픽 만들어줘', '스토리 추가', '백로그에 추가', '이 문서 보고 이슈 등록해줘', 'w1-w4.md 지라에 올려줘', '계획 문서를 지라로 옮겨줘', 'jira create', '/jira-create' 등의 요청에 반드시 이 스킬을 사용하세요. 워크플로우의 시작점으로, `jira-harness 플러그인의 issue 스킬` 착수 이전에 사용합니다."
 ---
+
+Codex 질문 도구: `request_user_input`은 제공되는 모드에서만 사용한다. 사용할 수 없으면 `request_user_input_async` 또는 간결한 평문 질문을 사용한다. 승인 요청은 현재 세션의 상위 지침을 따르고, 응답이 없다는 이유로 승인 처리하지 않는다.
+
 
 # jira-create — Jira 이슈 등록
 
@@ -51,7 +54,7 @@ description: "jira-create — 자연어 한 줄 또는 문서를 읽어 Jira 이
 4. **최근 브랜치 목록** — `git branch --all | grep -oE '[A-Z][A-Z0-9]+-[0-9]+' | sort -u | head` 결과의 다수 prefix
 5. **최근 커밋 메시지** — `git log --oneline -50 | grep -oE '[A-Z][A-Z0-9]+-[0-9]+'`
 6. **`mcp__atlassian__getVisibleJiraProjects`** — `action: "create"` 로 호출하여 사용 가능한 프로젝트 목록 조회. 1개뿐이면 그것 사용. 여러 개면 다음 7번으로.
-7. **사용자에게 질문** — `AskUserQuestion`으로 후보 3-4개 제시. 절대 임의로 고르지 않는다.
+7. **사용자에게 질문** — `request_user_input`으로 후보 3-4개 제시. 절대 임의로 고르지 않는다.
 
 > 한 번 확정되면 본 작업 동안에는 다시 묻지 않는다. 단, 사용자가 명시적으로 다른 프로젝트를 지목하면 즉시 교체한다.
 
@@ -67,7 +70,7 @@ description: "jira-create — 자연어 한 줄 또는 문서를 읽어 Jira 이
 
 ### 5. 라이트 코드/문맥 분석
 
-`/jira-harness:issue` 의 grill·plan 단계가 이후에 깊이 파주므로 **여기서는 가볍게**만 본다. 목적은 "이 이슈가 말이 되는가, 어디쯤에 손이 갈 가능성이 있는가" 확인.
+`jira-harness 플러그인의 issue 스킬` 의 grill·plan 단계가 이후에 깊이 파주므로 **여기서는 가볍게**만 본다. 목적은 "이 이슈가 말이 되는가, 어디쯤에 손이 갈 가능성이 있는가" 확인.
 
 - `CLAUDE.md` 가 있으면 1회 읽어 도메인 용어 확인
 - 사용자 입력의 명사구를 키워드로 `Grep` 1-2회 (예: "KPI 위젯" → `Kpi`, `kpi`, `dashboard`)
@@ -125,7 +128,7 @@ description: "jira-create — 자연어 한 줄 또는 문서를 읽어 Jira 이
 
 #### Description 템플릿 (단일 이슈, 라이트 버전)
 
-`/jira-harness:issue` 의 grill·plan 단계가 이후에 디테일을 채울 것이므로 **여기서는 의도가 전달될 정도만** 작성한다. 과도한 추측은 피한다.
+`jira-harness 플러그인의 issue 스킬` 의 grill·plan 단계가 이후에 디테일을 채울 것이므로 **여기서는 의도가 전달될 정도만** 작성한다. 과도한 추측은 피한다.
 
 ```markdown
 ## 배경
@@ -259,7 +262,7 @@ mcp__atlassian__createJiraIssue
 🌐 https://<site>.atlassian.net/browse/ABC-247
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-다음 단계: /jira-harness:issue ABC-247 (start 단계부터)
+다음 단계: jira-harness 플러그인의 issue 스킬 ABC-247 (start 단계부터)
 ```
 
 ## 벌크 모드 (문서 → Epic → Issue → Subtask)
@@ -274,7 +277,7 @@ mcp__atlassian__createJiraIssue
 2. **기존 에픽을 먼저 검색한다** — `mcp__atlassian__searchJiraIssuesUsingJql` 로 `project = <KEY> AND issuetype = Epic AND text ~ "<핵심 키워드>"` 검색. 매치되면 신규 에픽을 만들지 않고 그 아래에 이슈를 매단다.
 3. **트리 전체를 사용자에게 보여주고 일괄 승인** 받은 뒤에 등록을 시작한다 (개별 단계마다 묻지 않는다).
 4. **등록 순서**: Epic → Story/Task → Sub-task. 각 단계의 키를 다음 단계의 `parent` 로 사용.
-5. **설명은 적당히만 구체화** — grill 문답·plan 단계(`/jira-harness:issue`)가 후속에서 채운다.
+5. **설명은 적당히만 구체화** — grill 문답·plan 단계(`jira-harness 플러그인의 issue 스킬`)가 후속에서 채운다.
 
 ## Description 포맷 핵심 지침
 
@@ -289,7 +292,7 @@ mcp__atlassian__createJiraIssue
 ## Error Handling
 
 - **cloudId 못 찾음** → `mcp__atlassian__getAccessibleAtlassianResources` 결과를 보여주고 사용자에게 사이트 선택 요청
-- **projectKey 모호 (감지 후보 여러 개)** → AskUserQuestion 으로 선택지 제시. 임의 선택 금지.
+- **projectKey 모호 (감지 후보 여러 개)** → request_user_input 으로 선택지 제시. 임의 선택 금지.
 - **issueTypeName 메타에 없음** → 메타에서 받은 실제 이름 목록 보여주고 매핑 재시도. 흔한 변형: `Sub-task` vs `Subtask` vs `하위 작업`.
 - **createJiraIssue 실패 (필수 필드 누락)** → `getJiraIssueTypeMetaWithFields` 로 해당 타입의 필수 필드 조회 후 사용자에게 보충 요청.
 - **부모 에픽이 다른 프로젝트** → 같은 프로젝트로만 parent 가능. 사용자에게 알리고 확인.
@@ -299,7 +302,7 @@ mcp__atlassian__createJiraIssue
 
 - **이슈 등록은 외부에 공개되고 되돌리기 어렵다.** 등록 직전 사용자 확인은 절대 생략하지 않는다.
 - 벌크 모드에서 한 번 승인을 받았으면 매 이슈마다 다시 묻지 않는다 — 트리 전체를 한 번에 승인.
-- 등록한 이슈에 대해 자동으로 워크플로를 시작하지 않는다 — 다음 단계(`/jira-harness:issue <KEY>`)만 안내한다. 사용자가 여러 이슈를 만들고 그중 하나를 골라 시작하는 경우가 많다.
+- 등록한 이슈에 대해 자동으로 워크플로를 시작하지 않는다 — 다음 단계(`jira-harness 플러그인의 issue 스킬 <KEY>`)만 안내한다. 사용자가 여러 이슈를 만들고 그중 하나를 골라 시작하는 경우가 많다.
 - 라벨은 케이스 통일이 중요하다. `Spring-Boot` 와 `spring-boot` 는 검색에서 분리된다. **항상 소문자 + kebab-case**.
-- description은 라이트하게 — 후속 grill 문답·plan 단계(`/jira-harness:issue`)가 채울 여지를 남긴다. 처음부터 5페이지짜리 설계 문서 만들지 않는다.
+- description은 라이트하게 — 후속 grill 문답·plan 단계(`jira-harness 플러그인의 issue 스킬`)가 채울 여지를 남긴다. 처음부터 5페이지짜리 설계 문서 만들지 않는다.
 - 한국어 사용자가 영어 키워드("dashboard", "auth")로 입력해도 그대로 살린다. 강제로 한글로 번역하지 않는다 (코드/디렉토리명과 매칭이 깨짐).

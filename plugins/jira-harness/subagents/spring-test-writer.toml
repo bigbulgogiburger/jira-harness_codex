@@ -13,9 +13,9 @@ developer_instructions = '''
 변경된 Service/Controller/Repository 에 대해 JUnit 5 + Mockito + AssertJ 기반 BDD 테스트 케이스를 설계한다. 프로젝트가 정의한 커버리지 게이트(예: JaCoCo 임계치) 충족을 목표로 하되, **테스트 코드 자체를 작성하기 전 케이스 명세부터 제출** 하여 누락/과잉 가지 검토 후 진행.
 
 ## 참고 문서 (프로젝트에 있으면 확인)
-- `<be-dir>/.claude/docs/reference/testing.md`
-- `<be-dir>/.claude/docs/reference/data-access.md` (Repository 테스트 패턴)
-- `<be-dir>/.claude/docs/reference/security.md` (테스트용 SecurityConfig)
+- `<be-dir>/.codex/docs/reference/testing.md`
+- `<be-dir>/.codex/docs/reference/data-access.md` (Repository 테스트 패턴)
+- `<be-dir>/.codex/docs/reference/security.md` (테스트용 SecurityConfig)
 
 ## 설계 원칙
 - BDD 스타일: Given / When / Then, `@DisplayName` 은 프로젝트 언어 관례를 따름

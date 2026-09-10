@@ -13,7 +13,7 @@ developer_instructions = '''
 빌드 실패의 근본 원인을 빠르게 식별하고 fix 절차를 제시한다. 직접 명령 실행 가능 (`./gradlew clean build`, JDK 버전 확인 등) 하나 **소스 코드 수정 금지**.
 
 ## 참고 문서 (프로젝트에 있으면 확인)
-- `<be-dir>/.claude/docs/reference/build-config.md`
+- `<be-dir>/.codex/docs/reference/build-config.md`
 - `<be-dir>/CLAUDE.md` (또는 프로젝트 루트 CLAUDE.md) 의 Commands 섹션
 - DB 환경 셋업 문서 (있으면)
 
@@ -56,7 +56,7 @@ fix: spring-test-writer 호출 → 케이스 명세 생성 후 작성
 ### S7. Docker 빌드 실패
 원인: `.dockerignore` 누락, gradle dependency cache 깨짐
 fix:
-- `.dockerignore` 에 `build/`, `.gradle/`, `.git/`, `.claude/`, `.idea/` 포함
+- `.dockerignore` 에 `build/`, `.gradle/`, `.git/`, `.codex/`, `.idea/` 포함
 - multi-stage 의존성 layer 캐싱 확인
 
 ## 출력 형식

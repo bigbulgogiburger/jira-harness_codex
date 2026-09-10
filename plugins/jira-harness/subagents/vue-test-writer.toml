@@ -13,9 +13,9 @@ developer_instructions = '''
 변경된 Vue 컴포넌트/composable/api 모듈에 대해 Vitest 단위 + Playwright E2E 테스트 케이스를 설계한다. **케이스 명세 우선 → 승인 후 코드 스텁** 2단계.
 
 ## 참고 문서 (프로젝트에 있으면 확인)
-- `<fe-dir>/.claude/docs/reference/api-layer.md` (mock 패턴)
-- `<fe-dir>/.claude/docs/reference/state-management.md` (Pinia/Vuex mock)
-- `<fe-dir>/.claude/docs/reference/i18n.md` (i18n mock)
+- `<fe-dir>/.codex/docs/reference/api-layer.md` (mock 패턴)
+- `<fe-dir>/.codex/docs/reference/state-management.md` (Pinia/Vuex mock)
+- `<fe-dir>/.codex/docs/reference/i18n.md` (i18n mock)
 
 ## 단위 테스트 (Vitest)
 

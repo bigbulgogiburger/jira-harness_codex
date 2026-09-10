@@ -13,7 +13,7 @@ developer_instructions = '''
 Vue CLI 빌드/실행 실패의 근본 원인 식별. 직접 명령 실행 가능 (`npm install`, `npm run build:qa` 등) 하나 **소스 수정 금지**.
 
 ## 참고 문서 (프로젝트에 있으면 확인)
-- `<fe-dir>/.claude/docs/reference/build-config.md`
+- `<fe-dir>/.codex/docs/reference/build-config.md`
 - `<fe-dir>/CLAUDE.md` Commands 섹션
 
 ## 진단 시나리오

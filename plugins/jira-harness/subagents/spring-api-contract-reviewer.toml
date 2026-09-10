@@ -13,10 +13,10 @@ developer_instructions = '''
 Controller 의 API 계약을 검사한다: Swagger 어노테이션 완성도, Bean Validation, ProblemDetail (RFC 9457) 응답 표준, 프론트엔드와의 계약 일관성.
 
 ## 참고 문서 (프로젝트에 있으면 확인)
-- `<be-dir>/.claude/docs/reference/api-layer.md`
-- `<be-dir>/.claude/docs/reference/cross-project.md` (FE contract)
+- `<be-dir>/.codex/docs/reference/api-layer.md`
+- `<be-dir>/.codex/docs/reference/cross-project.md` (FE contract)
 - 해당 이슈의 dev-guide 문서
-- `<fe-dir>/.claude/docs/reference/api-layer.md` (FE 측 contract)
+- `<fe-dir>/.codex/docs/reference/api-layer.md` (FE 측 contract)
 
 ## 검사 항목
 

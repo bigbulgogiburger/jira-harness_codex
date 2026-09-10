@@ -60,11 +60,11 @@ function makeRepo() {
   g(dir, 'config', 'user.email', 'test@example.com');
   g(dir, 'config', 'user.name', 'test');
   g(dir, 'config', 'core.autocrlf', 'false');
-  mkdirSync(join(dir, '.claude'), { recursive: true });
+  mkdirSync(join(dir, '.codex'), { recursive: true });
   writeFileSync(join(dir, '.codex/harness.json'), JSON.stringify({
     version: 3, mode: 'auto', issue_prefix: 'ABC',
     branch_pattern: '^(feat|fix)/(?<keys>ABC-\\d+(?:-\\d+)*)(?:-[a-z0-9]+)*$',
-    default_branch: 'main', runtime_dir: '.claude/rt',
+    default_branch: 'main', runtime_dir: '.codex/rt',
     stacks: {},
   }, null, 2) + '\n');
   writeFileSync(join(dir, 'a.txt'), 'hello\n');
@@ -202,7 +202,7 @@ test('큰 diff(65파일·200KB)는 argv 가 아니라 파일로 넘긴다 — �
   assert.match(readFileSync(r.result.out, 'utf8'), /- diff: /);
 });
 
-test('runtime_dir 는 harness.json 값을 따른다(기본 .codex/runtime 이 아니라 .claude/rt)', () => {
+test('runtime_dir 는 harness.json 값을 따른다(기본 .codex/runtime 이 아니라 .codex/rt)', () => {
   const { dir } = makeRepo();
   const bin = makeFixtureBin();
   const r = run(dir, [], { PATH: pathWithFixture(bin), FAKE_CODEX_MODE: '2' });

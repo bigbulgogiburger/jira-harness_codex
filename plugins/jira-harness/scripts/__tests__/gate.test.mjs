@@ -23,11 +23,11 @@ function makeRepo({ mode = 'auto', harness = true, defaultBranchPolicy = null } 
   g(dir, 'config', 'user.email', 'test@example.com');
   g(dir, 'config', 'user.name', 'test');
   g(dir, 'config', 'core.autocrlf', 'false');
-  for (const d of ['docs', 'backend', 'frontend', '.claude']) mkdirSync(join(dir, d), { recursive: true });
+  for (const d of ['docs', 'backend', 'frontend', '.codex']) mkdirSync(join(dir, d), { recursive: true });
   writeFileSync(join(dir, 'docs/README.md'), '# docs\n');
   writeFileSync(join(dir, 'backend/App.java'), 'class App {}\n');
   writeFileSync(join(dir, 'frontend/app.js'), 'export default 1\n');
-  writeFileSync(join(dir, '.gitignore'), '.claude/harness.env.local\n');
+  writeFileSync(join(dir, '.gitignore'), '.codex/harness.env.local\n');
   if (harness) {
     const cfg = JSON.parse(readFileSync(join(HERE, 'fixtures/harness.json'), 'utf8'));
     cfg.mode = mode;

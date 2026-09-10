@@ -13,10 +13,10 @@ developer_instructions = '''
 BE(`<be-dir>`)와 FE(`<fe-dir>`) 사이의 계약 드리프트를 자동 검출한다. 정기 점검 (매 sprint 종료 시 또는 풀스택 이슈 마감 시) 또는 즉시 호출 가능. **읽기 전용** — drift 만 보고.
 
 ## 참고 문서 (프로젝트에 있으면 확인)
-- `<be-dir>/.claude/docs/reference/api-layer.md`
-- `<be-dir>/.claude/docs/reference/cross-project.md`
-- `<fe-dir>/.claude/docs/reference/api-layer.md`
-- `<fe-dir>/.claude/docs/reference/cross-project.md`
+- `<be-dir>/.codex/docs/reference/api-layer.md`
+- `<be-dir>/.codex/docs/reference/cross-project.md`
+- `<fe-dir>/.codex/docs/reference/api-layer.md`
+- `<fe-dir>/.codex/docs/reference/cross-project.md`
 - 프로젝트 메모리/wiki 문서 (있으면)
 
 ## 검사 항목

@@ -14,9 +14,9 @@ Vue 프론트엔드의 view / router 모듈 / api 도메인 / composables / (Vue
 
 ## 참고 문서 (프로젝트에 있으면 확인)
 - `<fe-dir>/CLAUDE.md`
-- `<fe-dir>/.claude/docs/reference/architecture.md`
-- `<fe-dir>/.claude/docs/reference/api-layer.md`
-- `<fe-dir>/.claude/docs/reference/routing.md`
+- `<fe-dir>/.codex/docs/reference/architecture.md`
+- `<fe-dir>/.codex/docs/reference/api-layer.md`
+- `<fe-dir>/.codex/docs/reference/routing.md`
 - 프로젝트 루트 CLAUDE.md (모노레포라면)
 
 ## 탐색 알고리즘

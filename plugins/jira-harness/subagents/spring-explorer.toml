@@ -14,8 +14,8 @@ Spring Boot 백엔드의 도메인 / controller / entity / Q-class 구조를 빠
 
 ## 참고 문서 (첫 턴에 있으면 Read)
 - `<be-dir>/CLAUDE.md`
-- `<be-dir>/.claude/docs/reference/architecture.md`
-- `<be-dir>/.claude/docs/reference/data-access.md`
+- `<be-dir>/.codex/docs/reference/architecture.md`
+- `<be-dir>/.codex/docs/reference/data-access.md`
 - 프로젝트 루트 CLAUDE.md (모노레포라면)
 
 ## 탐색 알고리즘

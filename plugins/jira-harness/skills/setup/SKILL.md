@@ -7,23 +7,26 @@ description: >-
   사용자가 "하네스 설치", "하네스 설정", "하네스 셋업", "이 프로젝트에 jira-harness
   붙여줘", "게이트 설정해줘", "harness.json 만들어줘", "v2 에서 올려줘", "업그레이드
   해줘", "harness 점검", "harness check" 라고 하면 **반드시** 이 스킬을 쓴다.
-  `.codex/harness.json` 이 없어 `/jira-harness:issue` 가 `NO_HARNESS` 를 보고할
+  `.codex/harness.json` 이 없어 `jira-harness 플러그인의 issue 스킬` 가 `NO_HARNESS` 를 보고할
   때도 이 스킬로 보낸다.
 ---
 
-# /jira-harness:setup — 설치·점검·업그레이드
+Codex 질문 도구: `request_user_input`은 제공되는 모드에서만 사용한다. 사용할 수 없으면 `request_user_input_async` 또는 간결한 평문 질문을 사용한다. 승인 요청은 현재 세션의 상위 지침을 따르고, 응답이 없다는 이유로 승인 처리하지 않는다.
+
+
+# jira-harness 플러그인의 setup 스킬 — 설치·점검·업그레이드
 
 `<P>` = 플러그인 루트 절대 경로. 이 스킬이 로드될 때 표시되는 `Base directory for this skill` 의 **두 단계 위**다(`skills/setup` 의 부모의 부모). 아래 모든 명령의 `<P>` 를 그 경로로 치환하고, 프로젝트 루트에서 실행한다.
 
 ## 0. 원칙
 
-- **이 스킬은 판단(인터뷰·승인 확인·보고)만 한다.** harness.json·settings.json·.gitignore 쓰기는 전부 `scripts/setup.mjs` 가 한다 — issue 스킬과 같은 원칙이다.
+- **이 스킬은 판단(인터뷰·승인 확인·보고)만 한다.** harness.json·.gitignore 쓰기는 전부 `scripts/setup.mjs` 가 한다 — issue 스킬과 같은 원칙이다.
 - 코드·설정 파일로 알 수 있는 값은 절대 묻지 않는다. 인터뷰는 `detect` 가 못 정한 값만.
 - 위반 주입에서 하나라도 실패하면 "게이트가 심겨 있다"와 "게이트가 작동한다"는 다른 말이라고 보고한다 — 존재 ≠ 실효.
 
 ## Usage
 
-`/jira-harness:setup [--upgrade] [--mode auto|suggest|off]`
+`jira-harness 플러그인의 setup 스킬 [--upgrade] [--mode auto|suggest|off]`
 
 - 인자 없음: 신규 설치 또는 기존 설정의 멱등 점검
 - `--upgrade`: v2 잔재 감지·이관(§6)으로 바로 진입
@@ -40,7 +43,7 @@ node "<P>/scripts/setup.mjs" detect --cwd <프로젝트 루트> --json
 - `unknown[]`: 코드로 못 정한 값 이름 배열 — **이 목록만** 인터뷰한다
 - `existing`: 기존 harness.json 이 있으면 그 내용(diff 비교용)
 
-`unknown[]` 에 있는 값만 AskUserQuestion 으로 **한 번에 하나씩** 확정한다:
+`unknown[]` 에 있는 값만 request_user_input 으로 **한 번에 하나씩** 확정한다:
 
 | 값 | 언제 묻나 |
 |----|----------|
@@ -59,7 +62,7 @@ node "<P>/scripts/setup.mjs" write --config <json 파일|-> [--marketplace <name
 ```
 
 - `existing` 이 있었으면 먼저 diff 를 보여주고 승인 받은 뒤 `--force` 로 재호출한다(승인 없이 덮어쓰지 않는다)
-- 이 한 호출이 `.codex/config.toml` 의 `extraKnownMarketplaces`/`enabledPlugins` 병합과 `.gitignore` 항목(런타임·env_file)까지 함께 처리한다 — 다른 파일을 손으로 건드리지 않는다
+- 이 호출은 harness.json·.gitignore를 쓰고 `settings.commands`에 Codex 플러그인 등록 argv를 반환한다. 해당 명령을 순서대로 실행하고 결과를 확인한다. `.codex/config.toml`에는 JSON을 쓰지 않는다. 설치 후 `/hooks`에서 훅 정의를 검토·신뢰한다. 설치 성공만으로 훅 신뢰가 설정되지는 않는다.
 
 ## 3. check — 전제 체크리스트
 
@@ -79,18 +82,15 @@ node "<P>/scripts/setup.mjs" inject --json
 
 ## 5. 헤드리스 실효 확인
 
-[references/injection.md](references/injection.md) 의 헤드리스 절차 그대로 실행한다: 프로젝트 안 이슈 브랜치에서 `claude -p` 로 커밋을 시도시켜 훅이 실제로 발화하는지 실측한다. **발화하지 않으면 harness.json 은 그대로 두고**, 설치 보고에 "훅 미발화 경로 — 무인 작업은 `safe-commit.mjs` 사용" 을 적는다. 실행하지 못했으면 결과를 "미확인" 으로 남긴다 — 지어내지 않는다.
+[references/injection.md](references/injection.md) 의 헤드리스 절차 그대로 실행한다: 프로젝트 안 이슈 브랜치에서 `codex exec` 로 커밋을 시도시켜 훅이 실제로 발화하는지 실측한다. **발화하지 않으면 harness.json 은 그대로 두고**, 설치 보고에 "훅 미발화 경로 — 무인 작업은 `safe-commit.mjs` 사용" 을 적는다. 실행하지 못했으면 결과를 "미확인" 으로 남긴다 — 지어내지 않는다.
 
-## 6. --upgrade — v2 이관
+## 6. --upgrade — 수동 이관
 
-1. `node "<P>/scripts/setup.mjs" upgrade --json`(dry-run) → `{found, moved, removedHooks, warnings}` 를 그대로 보여준다
-2. 승인 후 `--apply` 로 재호출 — v2 훅 3종·`HARNESS_MODE`·`runtime/{sprint-contract,workflow-state*.json,aggregate-verdict*.md,changed-files.txt}`·`phases/`·`scripts/*-execute.py` 가 `runtime/archive/v2/` 로 옮겨진다(삭제 아님)
-3. 사용자 스코프 v2 스킬(`harness-*`, `jira-plan`/`complete`/`execute`/`compile`/`ingest`, `wiki-lint`, `llm-wiki` 등 v3 가 대체하는 것)은 **목록만 보이고 이동은 사용자가 결정**한다 — 스킬은 사용자 파일을 지우지 않는다
-4. 프로젝트 CLAUDE.md 의 Harness 절과 연동 문서를 v3 표기로 갱신하도록 **안내**한다(편집은 사용자 승인 후 직접). 매핑표는 [references/upgrade.md](references/upgrade.md)
+Codex 판 `setup.mjs upgrade`는 `UNSUPPORTED_CODEX_UPGRADE`(exit 2)를 반환하고 파일을 변경하지 않는다. Claude settings JSON과 Codex TOML은 호환되지 않는다. 기존 v2 설정과 [references/upgrade.md](references/upgrade.md)의 이관 후보를 읽고 필요한 항목만 수동으로 옮긴다. 자동 이관이 완료됐다고 보고하지 않는다.
 
 ## 7. 설치 보고 (1화면)
 
-스택 · 모드 · 게이트 명령 · 체크리스트(§3) · 주입 결과(§4) · 헤드리스 확인 결과(§5) · 다음 명령(`/jira-harness:issue <KEY>`) 을 한 화면에 정리한다.
+스택 · 모드 · 게이트 명령 · 체크리스트(§3) · 주입 결과(§4) · 헤드리스 확인 결과(§5) · 다음 명령(`jira-harness 플러그인의 issue 스킬 <KEY>`) 을 한 화면에 정리한다.
 
 ## References
 
@@ -103,4 +103,4 @@ node "<P>/scripts/setup.mjs" inject --json
 
 - harness.json 에 절대 경로·자격증명을 쓰지 않는다 — 머신별 값은 `stacks.<name>.env_file` 이 가리키는 gitignore 파일로.
 - 마켓플레이스·플러그인 이름·저장소는 사용자가 명시하지 않으면 묻는다 — 추측해 등록하지 않는다.
-- `harness.json` 의 게이트 명령이 실제로 실패하면(스택 오탐 등) 이 스킬로 돌아와 `detect`→`write` 를 다시 돈다 — `/jira-harness:issue` 는 그 값을 고치지 않는다.
+- `harness.json` 의 게이트 명령이 실제로 실패하면(스택 오탐 등) 이 스킬로 돌아와 `detect`→`write` 를 다시 돈다 — `jira-harness 플러그인의 issue 스킬` 는 그 값을 고치지 않는다.

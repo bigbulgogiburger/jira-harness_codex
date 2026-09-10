@@ -112,5 +112,5 @@ driver(Claude) 는 판단·결정·훅만 갖고, 긴 출력은 전부 pane 과 
 ## 5. 전제 점검(check 에 더할 것)
 
 - `herdr status` 가 server running 이고 client/server 버전이 같다.
-- `herdr integration status` 에서 쓰는 에이전트(claude·codex)가 installed — 세션 복원(`claude --resume`)과 상태 인식 정확도가 여기서 갈린다. 설치는 사용자가 한다(`herdr integration install claude` 는 `~/.codex/config.toml` 을 고친다 — 묻지 않고 실행하지 않는다).
+- `herdr integration status` 에서 쓰는 에이전트(claude·codex)가 installed — 세션 복원(`claude --resume`)과 상태 인식 정확도가 여기서 갈린다. 설치는 사용자가 한다(`herdr integration install claude` 는 `~/.codex/settings.json` 을 고친다 — 묻지 않고 실행하지 않는다).
 - Windows codex 는 기본 샌드박스로 파일을 못 읽는다(`CreateProcessWithLogonW failed: 1385`) — `kind_args.codex` 에 `--sandbox danger-full-access` 가 없으면 verify 레인이 빈손으로 끝난다.

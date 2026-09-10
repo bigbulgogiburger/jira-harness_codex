@@ -1,7 +1,10 @@
 ---
 name: grilling
-description: Grill the user relentlessly about a plan or design until reaching shared understanding. Use when the user wants to stress-test a plan before building, get grilled on their design, or uses any 'grill' trigger phrases ('grill me', '그릴해줘', '계획 점검', '설계 털어줘'). 질문은 한 번에 하나, 선택형은 AskUserQuestion 선택지 UI로 렌더링한다.
+description: Grill the user relentlessly about a plan or design until reaching shared understanding. Use when the user wants to stress-test a plan before building, get grilled on their design, or uses any 'grill' trigger phrases ('grill me', '그릴해줘', '계획 점검', '설계 털어줘'). 질문은 한 번에 하나, 선택형은 request_user_input 선택지 UI로 렌더링한다.
 ---
+
+Codex 질문 도구: `request_user_input`은 제공되는 모드에서만 사용한다. 사용할 수 없으면 `request_user_input_async` 또는 간결한 평문 질문을 사용한다. 승인 요청은 현재 세션의 상위 지침을 따르고, 응답이 없다는 이유로 승인 처리하지 않는다.
+
 
 # grilling — 계획을 확정할 때까지 묻는 인터뷰
 
@@ -15,7 +18,7 @@ description: Grill the user relentlessly about a plan or design until reaching s
 
 ## 질문 형식 — 이 스킬의 첫 번째 심장
 
-**선택지를 만들 수 있는 질문은 반드시 AskUserQuestion 툴로 묻는다.** 평문으로 물으면 사용자가 긴 답을 타이핑해야 하지만, 이 툴은 화면에 클릭 가능한 선택지로 렌더링되고 "Other"로 자유 입력도 열려 있다.
+**선택지를 만들 수 있는 질문은 반드시 request_user_input 툴로 묻는다.** 평문으로 물으면 사용자가 긴 답을 타이핑해야 하지만, 이 툴은 화면에 클릭 가능한 선택지로 렌더링되고 "Other"로 자유 입력도 열려 있다.
 
 - **한 호출에 질문 1개만.** 여러 질문을 묶으면 어리둥절해진다.
 - **툴 호출이 곧 질문이다.** 질문이나 선택지를 평문으로 쓴 뒤 툴로 같은 것을 또 묻지 않는다 — 두 번 읽게 만드는 벽 텍스트가 된다. 평문에는 배경 브리핑(아래 난이도 절)만 남긴다.
@@ -46,4 +49,4 @@ description: Grill the user relentlessly about a plan or design until reaching s
 ## 진행 관리
 
 - 5문항 내외마다 한 번, 지금까지 확정된 것을 쉬운 말로 3~5줄 요약하고 이어간다. 사용자가 어디까지 왔는지 놓치지 않게 하기 위해서다.
-- **끝날 때**: 확정된 결정 전체를 정리해 보여주고, AskUserQuestion 으로 승인을 받는다(진행 (권장) / 수정할 것 있음 / 처음부터). 승인 전에는 계획을 실행하지 않는다.
+- **끝날 때**: 확정된 결정 전체를 정리해 보여주고, request_user_input 으로 승인을 받는다(진행 (권장) / 수정할 것 있음 / 처음부터). 승인 전에는 계획을 실행하지 않는다.

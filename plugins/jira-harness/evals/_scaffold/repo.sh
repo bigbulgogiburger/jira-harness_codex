@@ -8,7 +8,7 @@ mkdir -p backend frontend docs .claude
 printf 'class App {}\n' > backend/App.java
 printf 'export default 1\n' > frontend/app.js
 printf '# docs\n' > docs/README.md
-printf '.codex/runtime/\n.claude/harness.env.local\n' > .gitignore
+printf '.codex/runtime/\n.codex/harness.env.local\n' > .gitignore
 if [ "$MODE" != "bare" ]; then
 cat > .codex/harness.json <<'JSON'
 { "version": 3, "mode": "auto", "issue_prefix": "ABC",

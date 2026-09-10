@@ -44,7 +44,7 @@ claude plugin install jira-harness@bigbulgogiburger
 
 - `.codex/harness.json` — 프로젝트만 아는 값(스택·게이트 명령·브랜치 규칙·모델 티어). **절대 경로·자격증명 금지**(머신별 값은 `stacks.<name>.env_file` 이 가리키는 gitignore 파일로).
 - `.codex/runtime/issues/<branch>.json` — 브랜치 단위 상태(단계·결정·레인·DoD·게이트·리뷰 기록). `.codex/runtime/` 은 gitignore 대상.
-- `.codex/config.toml` — `extraKnownMarketplaces` / `enabledPlugins` (팀원 자동 안내).
+- `.codex/settings.json` — `extraKnownMarketplaces` / `enabledPlugins` (팀원 자동 안내).
 
 ## 게이트가 막는 이유(사유 코드)
 

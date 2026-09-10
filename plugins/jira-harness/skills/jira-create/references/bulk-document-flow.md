@@ -28,7 +28,7 @@
 - 문서가 가리키는 모듈이 실제로 존재하는지 / 어디에 있는지 확인 (라벨/컴포넌트 정확도)
 - 새로 만들어야 하는지 / 기존 코드에 추가하는지 식별 (이슈 설명에 짧게 반영)
 
-**여기서도 깊게 파지 않는다.** 후속 grill 문답·plan 단계(`/jira-harness:issue`)의 몫.
+**여기서도 깊게 파지 않는다.** 후속 grill 문답·plan 단계(`jira-harness 플러그인의 issue 스킬`)의 몫.
 
 ### 3. 스택 감지
 
@@ -199,7 +199,7 @@ mcp__atlassian__searchJiraIssuesUsingJql
    └─ ABC-304 (Bug)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-다음 단계: 작업할 이슈를 골라 /jira-harness:issue <KEY>
+다음 단계: 작업할 이슈를 골라 jira-harness 플러그인의 issue 스킬 <KEY>
 ```
 
 ## 실패 처리

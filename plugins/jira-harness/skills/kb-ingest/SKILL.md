@@ -21,7 +21,7 @@ description: "kb-ingest — Jira 이슈 KEY 가 없는 소스 (회의록, 클라
 
 | 점검 | 부재 시 행동 |
 |------|-------------|
-| `docs/INDEX-SCHEMA.md` | "wiki 미설정 프로젝트입니다 — `/jira-harness:issue`(wiki 단계, scripts/wiki-row.mjs)로 onboarding 먼저 진행해주세요" 안내 후 종료 |
+| `docs/INDEX-SCHEMA.md` | "wiki 미설정 프로젝트입니다 — `jira-harness 플러그인의 issue 스킬`(wiki 단계, scripts/wiki-row.mjs)로 onboarding 먼저 진행해주세요" 안내 후 종료 |
 | schema 에 `synthesis:` 키 | "synthesis 층이 설정되지 않았습니다" — catalog 등재 (INDEX/LOG) 만 할지, `references/_wiki-schema.md` § 17 Wiki Bootstrap 을 먼저 할지 사용자 확인 |
 | `docs/wiki/` 부재 또는 `synthesis.domains` 빈 배열 | `references/_wiki-schema.md` § 17 **Wiki Bootstrap** 제안 — bootstrap 없이 개별 kb-ingest 만 반복하면 wiki 가 "최근 것만 아는" 반쪽이 된다. 단 사용자가 "이것만 먼저" 라면 진행 (신규 도메인 신설 확인 포함) |
 
