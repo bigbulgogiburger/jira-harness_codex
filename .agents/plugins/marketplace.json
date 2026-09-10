@@ -1,0 +1,19 @@
+{
+  "name": "jira-harness-codex",
+  "interface": {
+    "displayName": "jira-harness (Codex)"
+  },
+  "plugins": [
+    {
+      "name": "jira-harness",
+      "source": {
+        "source": "local",
+        "path": "./plugins/jira-harness"
+      },
+      "policy": {
+        "installation": "AVAILABLE"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}

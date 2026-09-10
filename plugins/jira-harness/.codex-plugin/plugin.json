@@ -1,0 +1,49 @@
+{
+  "name": "jira-harness",
+  "version": "3.4.0",
+  "description": "Jira-driven development harness for Claude Code: issue router skill, saved workflows (plan/implement/verify), commit/push gate hook, deterministic bookkeeping scripts (state JSON, wiki index, memory).",
+  "author": {
+    "name": "bigbulgogiburger"
+  },
+  "homepage": "https://github.com/bigbulgogiburger/jira-harness_codex",
+  "repository": "https://github.com/bigbulgogiburger/jira-harness_codex",
+  "license": "MIT",
+  "keywords": [
+    "jira",
+    "harness",
+    "workflow",
+    "gate",
+    "codex"
+  ],
+  "skills": "./skills/",
+  "subagents": "./subagents/",
+  "hooks": {
+    "description": "jira-harness: git commit / git push are judged against the branch state JSON (gate + review records). This is the only hook.",
+    "hooks": {
+      "PreToolUse": [
+        {
+          "matcher": "Bash",
+          "hooks": [
+            {
+              "type": "command",
+              "command": "node \"${PLUGIN_ROOT}/scripts/commit-gate.mjs\"",
+              "timeout": 30
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "interface": {
+    "displayName": "jira-harness",
+    "shortDescription": "Jira-driven development harness for Claude Code",
+    "longDescription": "Jira-driven development harness for Claude Code: issue router skill, saved workflows (plan/implement/verify), commit/push gate hook, deterministic bookkeeping scripts (state JSON, wiki index, memory).",
+    "developerName": "bigbulgogiburger",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ]
+  }
+}
