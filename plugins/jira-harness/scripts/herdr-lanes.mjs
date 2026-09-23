@@ -13,7 +13,7 @@
 //   lane       임의 spec(run --spec) — 리뷰 밖 용도.
 //   implement  상태 JSON 의 레인 선언(plan 이 만든 lanes[])을 레인마다 **worktree + kind** 로 띄우고, 끝나면 worktree 의 변경을 패치로 회수해
 //              메인 체크아웃에 적용한다(`git apply --3way`). 레인은 커밋하지 않는다 — 커밋 권한은 언제나 메인(훅·게이트)이다.
-//              배치(herdr.lane_placement) — split(기본): worktree 는 git 이 <runtime>/herdr/worktrees/<slug>/<lane> 에 파고 pane 은 driver **옆에** 쪼갠다(새 워크스페이스 없음)
+//              배치(herdr.lane_placement) — split(기본): worktree 는 git 이 <runtime>/herdr/worktrees/<slug>/<lane> 에 파고 pane 은 driver **옆 2행 격자**에 쪼갠다(1번 right · 2번 그 아래 · 이후 행 번갈아 right — 새 워크스페이스 없음)
 //                                          workspace: `herdr worktree create` 로 레인마다 워크스페이스를 연다
 //   ★기동 직후 다이얼로그(codex "Do you trust the contents of this directory?" · 업데이트 안내 · claude teach)는 프롬프트 **전에** 걷는다.
 //     그 상태에서 프롬프트를 보내면 글자가 선택키로 먹혀 에이전트가 quit 하고 남은 텍스트가 셸에서 실행된다(2026-09-14 실측). 에이전트가 사라졌으면 절대 입력을 보내지 않는다.
@@ -70,9 +70,17 @@ export function laneName(s) { const n = String(s).toLowerCase().replace(/[^a-z0-
 /** kind 별 기본 네이티브 인자 — 실측 함정을 기본값으로 박는다. harness.json.herdr.kind_args 가 덮어쓴다 */
 export const DEFAULT_KIND_ARGS = {
   codex: process.platform === 'win32' ? ['--sandbox', 'danger-full-access', '--ask-for-approval', 'never'] : ['--ask-for-approval', 'never'],
-  claude: ['--permission-mode', 'acceptEdits'],
+  // claude: acceptEdits 는 worktree 밖(런타임 디렉토리의 프롬프트 파일) 읽기와 Bash(테스트 실행)마다 승인 UI 를 띄워 레인이 멈춘다
+  //   (2026-09-14 실측 — 두 레인이 "Do you want to proceed?" 에서 30분 대기). 레인은 격리 worktree 에서만 일하고 커밋하지 않으므로 bypassPermissions.
+  claude: ['--permission-mode', 'bypassPermissions'],
   grok: [],
 };
+/** Codex 판정 모델·effort(review.codex_model·codex_effort) → codex 네이티브 인자. codex 가 아닌 kind 나 미설정이면 [] — codex 기본값을 쓴다(codex-review.sh 와 같은 규칙) */
+export function reviewModelArgs(cfg, kind) {
+  if (kind !== 'codex') return [];
+  const { codex_model: m, codex_effort: e } = cfg.review ?? {};
+  return [...(m ? ['--model', m] : []), ...(e ? ['-c', `model_reasoning_effort=${e}`] : [])];
+}
 /**
  * kind 별 "무엇을 맡기나" 한 줄 — plan 이 레인에 kind 를 고를 때 읽는 재료. harness.json.herdr.kinds.profiles 가 덮어쓴다.
  * ⚠ 이것은 **가설**이지 측정치가 아니다. 어느 kind 가 어느 일을 잘하는지는 레인 기록(상태 JSON lanes[].result 의 kind·status·tests·seconds)이
@@ -84,6 +92,9 @@ export const DEFAULT_KIND_PROFILES = {
   grok: '작고 빠른 변경, 탐색적 시도(근거 가장 얇음 — 레인 기록으로 채운다)',
 };
 const TEACH_DIALOG = /teach auto mode|teach .* about your environment/i;
+// claude 기동 직후 프로젝트 .mcp.json 이 있으면 "MCP servers … Do you want to use them?" — enter(기본 Yes). 이 위에 프롬프트를 보내면 글자만 남고 제출되지 않는다(2026-09-14 실측).
+const MCP_DIALOG = /mcp server|use these mcp|\.mcp\.json/i;
+const INPUT_READY = /❯|>\s*$/m;
 const UPDATE_DIALOG = /update now|skip/i;
 // codex 기동 직후 "Do you trust the contents of this directory?" — 새 worktree 마다 뜬다(신뢰는 저장소 루트 단위인데 임시·새 저장소면 루트도 미신뢰).
 // ★이 상태에서 프롬프트를 보내면 글자가 선택키로 먹혀 codex 가 quit 하고, 남은 텍스트가 **셸에서 실행된다**(2026-09-14 실측). 그래서 프롬프트 전에 반드시 걷는다.
@@ -118,16 +129,18 @@ function paneTail(pane, env, lines = 15) {
  */
 async function settleStartupDialogs(name, env, { autoTrust = true } = {}) {
   const seen = [];
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < 12; i++) {
     const state = agentState(name, env);
     if (state == null) return { seen, gone: true };
     if (state === 'working') break;
     const s = screen(name, env, 25);
-    if (TRUST_DIALOG.test(s)) {
+    if (MCP_DIALOG.test(s) && /do you want|use them|1\. yes/i.test(s)) { herdr(['agent', 'send-keys', name, 'enter'], { cwd, env }); seen.push('mcp'); }
+    else if (TRUST_DIALOG.test(s)) {
       if (!autoTrust) return { seen, blocked: 'trust', screen: s };
       herdr(['agent', 'send-keys', name, 'enter'], { cwd, env }); seen.push('trust');
     } else if (/update now/i.test(s) && UPDATE_DIALOG.test(s)) { herdr(['agent', 'send-keys', name, 'down', 'enter'], { cwd, env }); seen.push('update'); }
     else if (TEACH_DIALOG.test(s)) { herdr(['agent', 'send-keys', name, 'esc'], { cwd, env }); seen.push('teach'); }
+    else if (!INPUT_READY.test(s) && i < 8) { await sleep(2000); continue; } // 아직 UI 가 안 그려졌다 — 빈 화면을 "다이얼로그 없음" 으로 읽지 않는다
     else break;
     await sleep(2000);
   }
@@ -226,11 +239,39 @@ function localWorktree(branch, repoDir) {
   }
   return null;
 }
+
+// ---------------------------------------------------------------- 레인 pane 격자 배치
+// 레인 pane 을 driver 오른쪽 한 줄로만 쪼개지 않는다(오너 지시 2026-09-14 — "세로로만 만들지 말고 밑에도 배치").
+// 규칙: 1번 레인 = driver 오른쪽(row0) · 2번 = 그 아래(row1) · 그 뒤로는 row0/row1 을 번갈아 **그 행의 마지막 pane 오른쪽**.
+// driver 열은 세로 전체를 유지하고 레인들은 오른쪽에 2행 격자로 쌓인다. 상태는 한 프로세스(run/implement/verify 한 번) 안에서만 산다.
+const laneGrid = { rows: [[], []], n: 0 };
+export function resetLaneGrid() { laneGrid.rows = [[], []]; laneGrid.n = 0; }
+function laneSplitSlot(h) {
+  const i = laneGrid.n++;
+  const driver = h.pane ? ['--pane', h.pane] : ['--current'];
+  if (i === 0) return { anchor: driver, direction: 'right', row: 0 };
+  const row0 = laneGrid.rows[0];
+  if (i === 1 && row0.length) return { anchor: ['--pane', row0[row0.length - 1]], direction: 'down', row: 1 };
+  const row = i % 2;
+  const last = laneGrid.rows[row][laneGrid.rows[row].length - 1];
+  if (!last) return { anchor: driver, direction: row === 1 ? 'down' : 'right', row }; // 앞 레인이 pane 을 못 만든 경우 — driver 기준으로 복귀
+  return { anchor: ['--pane', last], direction: 'right', row };
+}
+/** 격자 규칙대로 pane 을 하나 쪼개고 자리를 기록한다 — {pane, workspace, direction} | {error} */
+function splitLanePane(h, path, env) {
+  const slot = laneSplitSlot(h);
+  const r = herdr(['pane', 'split', ...slot.anchor, '--direction', slot.direction, '--cwd', path, '--no-focus'], { cwd, env, timeout: 15000 });
+  if (!r.ok) return { error: `pane split 실패: ${r.reason}` };
+  const pane = r.value?.result?.pane?.pane_id ?? null;
+  if (!pane) return { error: 'pane id 를 응답에서 못 읽음' };
+  laneGrid.rows[slot.row].push(pane);
+  return { pane, workspace: r.value?.result?.pane?.workspace_id ?? null, direction: slot.direction };
+}
 /**
- * split 배치(기본) — worktree 는 git 이 `<worktree_dir>/<lane>` 에 직접 파고, pane 은 **지금 워크스페이스의 driver 옆**에 쪼갠다(새 워크스페이스를 열지 않는다).
+ * split 배치(기본) — worktree 는 git 이 `<worktree_dir>/<lane>` 에 직접 파고, pane 은 **지금 워크스페이스의 driver 옆 격자**에 쪼갠다(새 워크스페이스를 열지 않는다 · 자리는 splitLanePane).
  * 순서: ① 브랜치 체크아웃이 이미 있으면 그 경로(existing · fresh 면 `git worktree remove --force` 뒤 새로) ② 낡은 브랜치는 지우고 ③ `git worktree add -b` ④ pane split --cwd <경로>.
  */
-function acquireLocalWorktree(lane, repoDir, env, { fresh = false, prep = null, dir, anchor }) {
+function acquireLocalWorktree(lane, repoDir, env, { fresh = false, prep = null, dir }) {
   const branch = lane.worktree_branch;
   let existing = localWorktree(branch, repoDir);
   if (existing && fresh) {
@@ -252,11 +293,9 @@ function acquireLocalWorktree(lane, repoDir, env, { fresh = false, prep = null, 
     mode = 'created';
     prepared = prep ? prepareWorktree(path, { repoDir, env, ...prep }) : null;
   }
-  const r = herdr(['pane', 'split', ...anchor, '--direction', 'right', '--cwd', path, '--no-focus'], { cwd, env, timeout: 15000 });
-  if (!r.ok) return { error: `pane split 실패: ${r.reason}` };
-  const pane = r.value?.result?.pane?.pane_id ?? null;
-  if (!pane) return { error: 'pane id 를 응답에서 못 읽음' };
-  return { pane, path, workspace: r.value?.result?.pane?.workspace_id ?? null, mode, prepared, dropped_stale: droppedStale, placement: 'split' };
+  const s = splitLanePane(herdrEnv(env), path, env);
+  if (s.error) return { error: s.error };
+  return { pane: s.pane, path, workspace: s.workspace, mode, prepared, dropped_stale: droppedStale, placement: 'split', direction: s.direction };
 }
 
 // ---------------------------------------------------------------- lane
@@ -296,18 +335,16 @@ export async function startLane(lane, { env = process.env, kindArgs = {}, laneCw
   }
   if (!pane) {
     if (lane.worktree_branch) {
-      const anchor = h.pane ? ['--pane', h.pane] : ['--current'];
       const w = lane.placement === 'workspace'
         ? acquireWorktree(lane, workDir, env, { fresh, prep })
-        : acquireLocalWorktree(lane, workDir, env, { fresh, prep, dir: lane.worktree_dir ?? '.herdr-lanes', anchor });
+        : acquireLocalWorktree(lane, workDir, env, { fresh, prep, dir: lane.worktree_dir ?? '.herdr-lanes' });
       if (w.error) return finish({ reason: w.error });
       pane = w.pane;
       res.worktree = { branch: lane.worktree_branch, path: w.path, workspace: w.workspace, mode: w.mode, placement: w.placement, ...(w.prepared ? { prepared: w.prepared } : {}), ...(w.dropped_stale ? { dropped_stale: true } : {}) };
     } else {
-      const anchor = h.pane ? ['--pane', h.pane] : ['--current'];
-      const r = herdr(['pane', 'split', ...anchor, '--direction', 'right', '--cwd', workDir, '--no-focus'], { cwd, env, timeout: 15000 });
-      if (!r.ok) return finish({ reason: `pane split 실패: ${r.reason}` });
-      pane = r.value?.result?.pane?.pane_id ?? null;
+      const s = splitLanePane(h, workDir, env);
+      if (s.error) return finish({ reason: s.error });
+      pane = s.pane; res.split = s.direction;
     }
     if (!pane) return finish({ reason: 'pane id 를 응답에서 못 읽음' });
     res.pane = pane;
@@ -758,6 +795,9 @@ async function main() {
     const out = fwd(join(root, cfg.runtime_dir, 'issues', `${slug}.herdr-${kind}${since ? '-delta' : ''}.json`));
     const fresh = reviewerFresh({ cfg, root, kind, slug });
     const lane = { name: `review-${kind}`, kind, reuse: true, fresh, out, prompt: reviewPrompt({ root, diffCmd, files, axes: opt('--axes') }) };
+    // 모델·effort 는 pane 을 새로 띄울 때만 먹는다 — 재사용되는 상주 reviewer 는 기동 시점 값을 유지한다
+    const modelArgs = reviewModelArgs(cfg, kind);
+    if (modelArgs.length) lane.args = [...((hc.kind_args ?? {})[kind] ?? DEFAULT_KIND_ARGS[kind] ?? []), ...modelArgs];
     herdrPing(cwd, `codex-review ${kind}${fresh ? ' (/new)' : ''}`);
     const l = await runLane(lane, { env, timeoutS: hc.lane_timeout_s ?? 900, kindArgs: hc.kind_args ?? {}, closePanes: false, laneCwd: root, autoTrust: hc.auto_trust !== false });
     const findings = mergeFindings({ lanes: [l] });

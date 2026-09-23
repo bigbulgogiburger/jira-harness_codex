@@ -17,7 +17,13 @@
 #
 # 사용법:
 #   scripts/codex-review.sh [--since <tree-id>] [--out <file>] [--cwd <dir>]
-#                            [--timeout <sec>] [--model <codex model>] [--prompt-file <file>]
+#                            [--timeout <sec>] [--model <codex model>] [--effort <level>]
+#                            [--prompt-file <file>]
+#
+#   모델·effort: 인자(--model/--effort) > harness.json review.codex_model·review.codex_effort
+#     > codex 기본값(~/.codex/config.toml 의 model·model_reasoning_effort).
+#     effort 는 codex 에 -c model_reasoning_effort=<값> 으로 넘긴다 — 모델이 거부하는 값이면
+#     codex 가 오류로 끝나 status=fail 로 드러난다(조용히 기본값으로 떨어지지 않는다).
 #
 #   대상 diff:
 #     기본        git diff <default_branch>...HEAD (커밋 구간) + git diff HEAD (작업트리)
@@ -28,7 +34,10 @@
 #
 #   출력 파일 기본: <runtime_dir>/review/<branch-slug>-codex-<UTC ts>.md
 #   판정은 exit code 가 아니라 **출력 본문**이다 — 영문 앵커 `Verdict:` 줄(PASS|BLOCK|UNKNOWN)과
-#   `BLOCKER` 로 시작하는 항목 수를 센다. 사용량 한도 문구면 status=limit. codex 가 PATH 에
+#   BLOCKER 항목 수(`BLOCKER` 로 시작하는 줄 또는 프롬프트 형식의 `- severity: BLOCKER` 줄)를 센다.
+#   세는 구간은 마지막 `tokens used` 뒤(codex exec 가 끝에 다시 찍는 최종 메시지)다 — 그 앞에는
+#   프롬프트 되울림(형식 안내의 `severity: BLOCKER | MAJOR | MINOR`·`Verdict: BLOCK`)과 같은 메시지의
+#   스트리밍 사본이 있다. 표식이 없으면 전체를 본다. 사용량 한도 문구면 status=limit. codex 가 PATH 에
 #   없으면 status=missing(조용히 통과시키지 않는다). 타임아웃/캡 절단은 status=fail.
 #
 #   마지막 stdout 줄은 정확히 다음 형식(그 외 로그는 전부 stderr):
@@ -47,6 +56,7 @@ OUT_ARG=""
 CWD_ARG=""
 TIMEOUT_ARG=""
 MODEL=""
+EFFORT=""
 PROMPT_FILE_ARG=""
 
 while [[ $# -gt 0 ]]; do
@@ -56,6 +66,7 @@ while [[ $# -gt 0 ]]; do
     --cwd) CWD_ARG="${2:?--cwd 는 디렉터리 필요}"; shift 2 ;;
     --timeout) TIMEOUT_ARG="${2:?--timeout 은 초 필요}"; shift 2 ;;
     --model) MODEL="${2:?--model 은 모델명 필요}"; shift 2 ;;
+    --effort) EFFORT="${2:?--effort 는 reasoning effort 값 필요}"; shift 2 ;;
     --prompt-file) PROMPT_FILE_ARG="${2:?--prompt-file 은 파일 경로 필요}"; shift 2 ;;
     *) echo "[codex-review] 알 수 없는 인자: $1" >&2; exit 1 ;;
   esac
@@ -123,6 +134,8 @@ harness_field() { # field default
 
 DEFAULT_BRANCH="$(harness_field default_branch main)"
 RUNTIME_DIR="$(harness_field runtime_dir .codex/runtime)"
+[[ -z "$MODEL" ]] && MODEL="$(harness_field codex_model "")"
+[[ -z "$EFFORT" ]] && EFFORT="$(harness_field codex_effort "")"
 
 BRANCH="$(git symbolic-ref --short -q HEAD 2>/dev/null)"
 [[ -z "$BRANCH" ]] && BRANCH="(detached)"
@@ -183,6 +196,7 @@ write_report() { # body-file-or-empty note
     echo "- files: $FILES_COUNT"
     echo "- diff: $DIFF_OUT (${DIFF_BYTES:-0} bytes)"
     echo "- model: ${MODEL:-(default)}"
+    echo "- effort: ${EFFORT:-(default)}"
     echo "- timestamp: $TS_UTC"
     echo
     echo "---"
@@ -295,7 +309,7 @@ kill_tree() {
 
 START=$(date +%s)
 # shellcheck disable=SC2086
-codex $CODEX_ARGS ${MODEL:+--model "$MODEL"} "$(cat "$PROMPT_FILE")" < /dev/null > "$RAW_OUT" 2>&1 &
+codex $CODEX_ARGS ${MODEL:+--model "$MODEL"} ${EFFORT:+-c "model_reasoning_effort=$EFFORT"} "$(cat "$PROMPT_FILE")" < /dev/null > "$RAW_OUT" 2>&1 &
 PID=$!
 
 LAST_SIZE=0
@@ -352,9 +366,16 @@ fi
 write_report "$RAW_OUT" ""
 
 if [[ "$STATUS" == "ok" ]]; then
-  VERDICT="$(grep -Eo 'Verdict:[[:space:]]*(PASS|BLOCK|UNKNOWN)' "$RAW_OUT" 2>/dev/null | tail -1 | sed -E 's/.*(PASS|BLOCK|UNKNOWN).*/\1/')"
+  FINAL_OUT="$TMP_DIR/codex-final.txt"
+  MARK="$(grep -n '^tokens used' "$RAW_OUT" 2>/dev/null | tail -1 | cut -d: -f1)"
+  if [[ -n "$MARK" ]]; then
+    tail -n +"$((MARK + 1))" "$RAW_OUT" | sed '1{/^[0-9][0-9,]*[[:space:]]*$/d;}' > "$FINAL_OUT"
+  else
+    cp "$RAW_OUT" "$FINAL_OUT"
+  fi
+  VERDICT="$(grep -Eo 'Verdict:[[:space:]]*(PASS|BLOCK|UNKNOWN)' "$FINAL_OUT" 2>/dev/null | tail -1 | sed -E 's/.*(PASS|BLOCK|UNKNOWN).*/\1/')"
   [[ -z "$VERDICT" ]] && VERDICT="UNKNOWN"
-  BLOCKERS="$(grep -Ec '^[[:space:]]*([0-9]+\.[[:space:]]*|[-*][[:space:]]*)?BLOCKER' "$RAW_OUT" 2>/dev/null)"
+  BLOCKERS="$(grep -Ec '^[[:space:]]*(([0-9]+\.[[:space:]]*|[-*][[:space:]]*)?BLOCKER|([-*][[:space:]]*)?severity:[[:space:]]*\**BLOCKER\**[[:space:]]*$)' "$FINAL_OUT" 2>/dev/null)"
   [[ -z "$BLOCKERS" ]] && BLOCKERS=0
   emit_result "ok" "$BLOCKERS" "$VERDICT" "$OUT_PATH" "$FILES_COUNT" ""
   exit 0

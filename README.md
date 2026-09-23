@@ -1,6 +1,6 @@
 # jira-harness (Codex)
 
-[`jira-harness`](https://github.com/bigbulgogiburger/jira-harness) v3.5.0 의 **Codex CLI 판**입니다.
+[`jira-harness`](https://github.com/bigbulgogiburger/jira-harness) v3.6.0 의 **Codex CLI 판**입니다.
 저장소 루트가 곧 Codex 마켓플레이스이고, 그 안에 플러그인 하나가 들어 있습니다.
 
 > ## 🔴 이 저장소는 생성물입니다 — 직접 고치지 마세요
@@ -107,4 +107,4 @@ Codex CLI 0.153.4+ (`codex plugin` 서브커맨드), Node.js 20+, git. Windows �
 
 MIT — 원본과 같습니다.
 
-<sub>생성 시각 2026-09-14T02:57:16.741Z · 원본 v3.5.0</sub>
+<sub>생성 시각 2026-09-23T01:37:10.293Z · 원본 v3.6.0</sub>
